@@ -27,6 +27,10 @@ const stmtInsertItem = db.prepare<{
   VALUES (@venta_id, @producto_id, @nombre, @precio, @qty, @total)
 `)
 
+const stmtDescontarStock = db.prepare<{ qty: number; id: number }>(`
+  UPDATE productos SET stock = MAX(0, stock - @qty) WHERE id = @id
+`)
+
 const txGuardar = db.transaction((venta: Venta) => {
   const { lastInsertRowid } = stmtInsertVenta.run({
     folio:       venta.id,
@@ -39,14 +43,16 @@ const txGuardar = db.transaction((venta: Venta) => {
   })
 
   for (const item of venta.items) {
+    const producto_id = parseInt(item.producto.id, 10) || null
     stmtInsertItem.run({
-      venta_id:    lastInsertRowid,
-      producto_id: parseInt(item.producto.id, 10) || null,
-      nombre:      item.producto.nombre,
-      precio:      item.precioUnitario,
-      qty:         item.qty,
-      total:       item.total,
+      venta_id: lastInsertRowid,
+      producto_id,
+      nombre:   item.producto.nombre,
+      precio:   item.precioUnitario,
+      qty:      item.qty,
+      total:    item.total,
     })
+    if (producto_id) stmtDescontarStock.run({ qty: item.qty, id: producto_id })
   }
 })
 
