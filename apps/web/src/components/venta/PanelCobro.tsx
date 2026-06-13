@@ -5,7 +5,8 @@ import type { Venta } from '@/types/pos'
 
 interface PanelCobroProps {
   total: number
-  onPagar: (metodo: Venta['metodoPago'], efectivo?: number) => void
+  procesando: boolean
+  onPagar: (metodo: Venta['metodoPago'], efectivo?: number) => Promise<void>
   onCancelar: () => void
 }
 
@@ -15,7 +16,7 @@ const METODOS: { value: Venta['metodoPago']; label: string }[] = [
   { value: 'transferencia', label: 'Transferencia' },
 ]
 
-export function PanelCobro({ total, onPagar, onCancelar }: PanelCobroProps) {
+export function PanelCobro({ total, procesando, onPagar, onCancelar }: PanelCobroProps) {
   const [metodo, setMetodo] = useState<Venta['metodoPago']>('efectivo')
   const [efectivo, setEfectivo] = useState('')
 
@@ -78,10 +79,10 @@ export function PanelCobro({ total, onPagar, onCancelar }: PanelCobroProps) {
           onClick={() =>
             onPagar(metodo, metodo === 'efectivo' ? montoEfectivo : undefined)
           }
-          disabled={!puedeConfirmar}
+          disabled={!puedeConfirmar || procesando}
           className="flex-1 py-3 rounded-xl bg-accent text-white font-semibold disabled:opacity-40 hover:bg-accent-dark transition-colors"
         >
-          Confirmar
+          {procesando ? 'Guardando…' : 'Confirmar'}
         </button>
       </div>
     </div>

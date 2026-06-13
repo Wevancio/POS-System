@@ -8,7 +8,7 @@ import { VentaCompletada } from '@/components/venta/VentaCompletada'
 
 export default function VentaPage() {
   const {
-    items, estado, total, ultimaVenta,
+    items, estado, total, procesando, ultimaVenta,
     agregarPorCodigo, cambiarCantidad, eliminarItem,
     iniciarCobro, cancelarCobro, procesarPago, nuevaVenta,
   } = useVenta()
@@ -81,6 +81,7 @@ export default function VentaPage() {
           ) : estado === 'cobrando' ? (
             <PanelCobro
               total={total}
+              procesando={procesando}
               onPagar={procesarPago}
               onCancelar={cancelarCobro}
             />

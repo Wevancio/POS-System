@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import type { ItemVenta, Venta } from '@/types/pos'
 import { buscarProductoAction } from '@/app/actions/productos'
+import { guardarVentaAction } from '@/app/actions/ventas'
 
 type EstadoVenta = 'activa' | 'cobrando' | 'completada'
 
@@ -8,19 +9,21 @@ interface UseVentaReturn {
   items: ItemVenta[]
   estado: EstadoVenta
   total: number
+  procesando: boolean
   ultimaVenta: Venta | null
   agregarPorCodigo: (codigo: string) => Promise<boolean>
   cambiarCantidad: (productoId: string, delta: number) => void
   eliminarItem: (productoId: string) => void
   iniciarCobro: () => void
   cancelarCobro: () => void
-  procesarPago: (metodoPago: Venta['metodoPago'], efectivo?: number) => void
+  procesarPago: (metodoPago: Venta['metodoPago'], efectivo?: number) => Promise<void>
   nuevaVenta: () => void
 }
 
 export function useVenta(): UseVentaReturn {
   const [items, setItems] = useState<ItemVenta[]>([])
   const [estado, setEstado] = useState<EstadoVenta>('activa')
+  const [procesando, setProcesando] = useState(false)
   const [ultimaVenta, setUltimaVenta] = useState<Venta | null>(null)
 
   const total = items.reduce((acc, i) => acc + i.total, 0)
@@ -67,19 +70,25 @@ export function useVenta(): UseVentaReturn {
   const cancelarCobro = useCallback(() => setEstado('activa'), [])
 
   const procesarPago = useCallback(
-    (metodoPago: Venta['metodoPago'], efectivo?: number) => {
-      const venta: Venta = {
-        id: `V-${Date.now()}`,
-        items,
-        subtotal: total,
-        descuento: 0,
-        total,
-        metodoPago,
-        cambio: efectivo !== undefined ? efectivo - total : undefined,
-        creadoEn: new Date(),
+    async (metodoPago: Venta['metodoPago'], efectivo?: number) => {
+      setProcesando(true)
+      try {
+        const venta: Venta = {
+          id: `V-${Date.now()}`,
+          items,
+          subtotal: total,
+          descuento: 0,
+          total,
+          metodoPago,
+          cambio: efectivo !== undefined ? efectivo - total : undefined,
+          creadoEn: new Date(),
+        }
+        await guardarVentaAction(venta)
+        setUltimaVenta(venta)
+        setEstado('completada')
+      } finally {
+        setProcesando(false)
       }
-      setUltimaVenta(venta)
-      setEstado('completada')
     },
     [items, total]
   )
@@ -91,7 +100,7 @@ export function useVenta(): UseVentaReturn {
   }, [])
 
   return {
-    items, estado, total, ultimaVenta,
+    items, estado, total, procesando, ultimaVenta,
     agregarPorCodigo, cambiarCantidad, eliminarItem,
     iniciarCobro, cancelarCobro, procesarPago, nuevaVenta,
   }
