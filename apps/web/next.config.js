@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // better-sqlite3 es un addon nativo — no bundlear, cargar como external
+  experimental: {
+    serverComponentsExternalPackages: ['better-sqlite3'],
+  },
+
   // PWA: headers para offline y cache
   async headers() {
     return [
