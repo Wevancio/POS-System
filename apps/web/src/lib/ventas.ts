@@ -74,3 +74,26 @@ const stmtListarDia = db.prepare(`
 export function listarVentasDelDia(): VentaResumen[] {
   return stmtListarDia.all() as VentaResumen[]
 }
+
+// ─── Corte de caja ───────────────────────────────────────────────
+
+export interface ResumenMetodo {
+  metodo_pago: string
+  num_ventas:  number
+  total:       number
+}
+
+const stmtCorte = db.prepare(`
+  SELECT
+    metodo_pago,
+    COUNT(*)   AS num_ventas,
+    SUM(total) AS total
+  FROM ventas
+  WHERE date(creado_en) = date('now')
+  GROUP BY metodo_pago
+  ORDER BY total DESC
+`)
+
+export function obtenerCorteDelDia(): ResumenMetodo[] {
+  return stmtCorte.all() as ResumenMetodo[]
+}
