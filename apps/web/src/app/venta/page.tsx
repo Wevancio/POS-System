@@ -36,12 +36,11 @@ export default function VentaPage() {
     <div className="min-h-screen bg-surface-muted flex flex-col">
       <header className="bg-primary px-5 py-3 flex items-center justify-between">
         <span className="text-accent font-bold text-lg tracking-wide">POS</span>
-        <Link
-          href="/historial"
-          className="text-white/50 text-sm hover:text-white transition-colors"
-        >
-          Historial →
-        </Link>
+        <nav className="flex items-center gap-5 text-sm">
+          <span className="text-white font-medium">Venta</span>
+          <Link href="/historial" className="text-white/50 hover:text-white transition-colors">Historial</Link>
+          <Link href="/catalogo"  className="text-white/50 hover:text-white transition-colors">Catálogo</Link>
+        </nav>
       </header>
 
       <div className="flex flex-1 overflow-hidden">

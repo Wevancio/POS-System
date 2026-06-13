@@ -21,9 +21,11 @@ export default function HistorialPage() {
     <div className="min-h-screen bg-surface-muted flex flex-col">
       <header className="bg-primary px-5 py-3 flex items-center justify-between">
         <span className="text-accent font-bold text-lg tracking-wide">POS</span>
-        <Link href="/venta" className="text-white/60 text-sm hover:text-white transition-colors">
-          ← Volver a venta
-        </Link>
+        <nav className="flex items-center gap-5 text-sm">
+          <Link href="/venta"    className="text-white/50 hover:text-white transition-colors">Venta</Link>
+          <span className="text-white font-medium">Historial</span>
+          <Link href="/catalogo" className="text-white/50 hover:text-white transition-colors">Catálogo</Link>
+        </nav>
       </header>
 
       <main className="flex-1 p-5 max-w-2xl mx-auto w-full">
