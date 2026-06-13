@@ -26,4 +26,26 @@ db.exec(`
     activo    INTEGER NOT NULL DEFAULT 1,
     creado_en TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS ventas (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    folio       TEXT    NOT NULL UNIQUE,
+    subtotal    REAL    NOT NULL,
+    descuento   REAL    NOT NULL DEFAULT 0,
+    total       REAL    NOT NULL,
+    metodo_pago TEXT    NOT NULL,
+    efectivo    REAL,
+    cambio      REAL,
+    creado_en   TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS items_venta (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    venta_id    INTEGER NOT NULL REFERENCES ventas(id) ON DELETE CASCADE,
+    producto_id INTEGER,
+    nombre      TEXT    NOT NULL,
+    precio      REAL    NOT NULL,
+    qty         INTEGER NOT NULL,
+    total       REAL    NOT NULL
+  );
 `)
