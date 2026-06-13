@@ -238,7 +238,14 @@ export function GestorCatalogo({ productosIniciales }: { productosIniciales: Pro
                 <td className="px-4 py-3 font-medium text-primary">{p.nombre}</td>
                 <td className="px-4 py-3 text-gray-400 font-mono text-xs">{p.sku ?? '—'}</td>
                 <td className="px-4 py-3 text-right font-semibold">${p.precio.toFixed(2)}</td>
-                <td className="px-4 py-3 text-right">{p.stock ?? 0}</td>
+                <td className="px-4 py-3 text-right">
+                  <span className={(p.stock ?? 0) <= 5 && p.activo ? 'text-danger font-semibold' : ''}>
+                    {p.stock ?? 0}
+                  </span>
+                  {(p.stock ?? 0) <= 5 && p.activo && (
+                    <span className="ml-1 text-xs text-danger" title="Stock bajo">▲</span>
+                  )}
+                </td>
                 <td className="px-4 py-3 text-gray-500">{p.categoria ?? '—'}</td>
                 <td className="px-4 py-3 text-center">
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
