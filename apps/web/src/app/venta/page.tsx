@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import Link from 'next/link'
 import { useVenta } from '@/components/venta/useVenta'
 import { Carrito } from '@/components/venta/Carrito'
 import { PanelCobro } from '@/components/venta/PanelCobro'
@@ -35,7 +36,12 @@ export default function VentaPage() {
     <div className="min-h-screen bg-surface-muted flex flex-col">
       <header className="bg-primary px-5 py-3 flex items-center justify-between">
         <span className="text-accent font-bold text-lg tracking-wide">POS</span>
-        <span className="text-white/50 text-sm">Punto de Venta</span>
+        <Link
+          href="/historial"
+          className="text-white/50 text-sm hover:text-white transition-colors"
+        >
+          Historial →
+        </Link>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
