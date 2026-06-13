@@ -17,10 +17,10 @@ export default function VentaPage() {
   const [error, setError] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
-  function handleScan(e: React.FormEvent) {
+  async function handleScan(e: React.FormEvent) {
     e.preventDefault()
     if (!codigo.trim()) return
-    const ok = agregarPorCodigo(codigo.trim())
+    const ok = await agregarPorCodigo(codigo.trim())
     if (!ok) {
       setError(`Producto no encontrado: "${codigo}"`)
       setTimeout(() => setError(''), 2500)

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import type { ItemVenta, Venta } from '@/types/pos'
-import { buscarProducto } from '@/lib/productos-mock'
+import { buscarProductoAction } from '@/app/actions/productos'
 
 type EstadoVenta = 'activa' | 'cobrando' | 'completada'
 
@@ -9,7 +9,7 @@ interface UseVentaReturn {
   estado: EstadoVenta
   total: number
   ultimaVenta: Venta | null
-  agregarPorCodigo: (codigo: string) => boolean
+  agregarPorCodigo: (codigo: string) => Promise<boolean>
   cambiarCantidad: (productoId: string, delta: number) => void
   eliminarItem: (productoId: string) => void
   iniciarCobro: () => void
@@ -25,8 +25,8 @@ export function useVenta(): UseVentaReturn {
 
   const total = items.reduce((acc, i) => acc + i.total, 0)
 
-  const agregarPorCodigo = useCallback((codigo: string): boolean => {
-    const producto = buscarProducto(codigo)
+  const agregarPorCodigo = useCallback(async (codigo: string): Promise<boolean> => {
+    const producto = await buscarProductoAction(codigo)
     if (!producto) return false
 
     setItems((prev) => {
