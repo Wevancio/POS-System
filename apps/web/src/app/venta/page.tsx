@@ -40,6 +40,7 @@ export default function VentaPage() {
           <span className="text-white font-medium">Venta</span>
           <Link href="/historial" className="text-white/50 hover:text-white transition-colors">Historial</Link>
           <Link href="/catalogo"  className="text-white/50 hover:text-white transition-colors">Catálogo</Link>
+          <Link href="/corte"     className="text-white/50 hover:text-white transition-colors">Corte</Link>
         </nav>
       </header>
 

@@ -25,6 +25,7 @@ export default function HistorialPage() {
           <Link href="/venta"    className="text-white/50 hover:text-white transition-colors">Venta</Link>
           <span className="text-white font-medium">Historial</span>
           <Link href="/catalogo" className="text-white/50 hover:text-white transition-colors">Catálogo</Link>
+          <Link href="/corte"    className="text-white/50 hover:text-white transition-colors">Corte</Link>
         </nav>
       </header>
 

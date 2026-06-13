@@ -13,6 +13,7 @@ export default function CatalogoPage() {
           <Link href="/venta"    className="text-white/50 hover:text-white transition-colors">Venta</Link>
           <Link href="/historial" className="text-white/50 hover:text-white transition-colors">Historial</Link>
           <span className="text-white font-medium">Catálogo</span>
+          <Link href="/corte"    className="text-white/50 hover:text-white transition-colors">Corte</Link>
         </nav>
       </header>
 
