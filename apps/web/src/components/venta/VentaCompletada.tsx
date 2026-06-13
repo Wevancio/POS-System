@@ -1,6 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import type { Venta } from '@/types/pos'
+import type { TicketImpresion } from '@/types/pos'
+import { imprimirYAbrirCajon } from '@/lib/hardware'
 
 interface VentaCompletadaProps {
   venta: Venta
@@ -13,9 +16,48 @@ const METODO_LABEL: Record<Venta['metodoPago'], string> = {
   transferencia: 'Transferencia',
 }
 
+function ventaATicket(venta: Venta): TicketImpresion {
+  return {
+    negocio:    'MI TIENDA',
+    folio:      venta.id,
+    fecha:      new Date(venta.creadoEn).toLocaleString('es-MX'),
+    items:      venta.items.map(i => ({
+      qty:    i.qty,
+      nombre: i.producto.nombre,
+      total:  i.total,
+    })),
+    subtotal:   venta.subtotal,
+    descuento:  venta.descuento > 0 ? venta.descuento : undefined,
+    total:      venta.total,
+    metodoPago: METODO_LABEL[venta.metodoPago],
+    cambio:     venta.cambio,
+  }
+}
+
+type EstadoImp = 'idle' | 'imprimiendo' | 'ok' | 'error'
+
 export function VentaCompletada({ venta, onNuevaVenta }: VentaCompletadaProps) {
+  const [estadoImp, setEstadoImp] = useState<EstadoImp>('idle')
+
+  async function handleImprimir() {
+    setEstadoImp('imprimiendo')
+    try {
+      await imprimirYAbrirCajon(ventaATicket(venta))
+      setEstadoImp('ok')
+    } catch {
+      setEstadoImp('error')
+    }
+  }
+
+  const labelImp: Record<EstadoImp, string> = {
+    idle:        '🖨️  Imprimir ticket y abrir cajón',
+    imprimiendo: 'Imprimiendo…',
+    ok:          '✓ Ticket impreso',
+    error:       '✕ Error — reintentar',
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-6">
+    <div className="flex flex-col items-center justify-center h-full gap-5">
       <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center">
         <span className="text-success text-4xl font-bold">✓</span>
       </div>
@@ -33,6 +75,21 @@ export function VentaCompletada({ venta, onNuevaVenta }: VentaCompletadaProps) {
         )}
         <Row label="Artículos" value={String(venta.items.reduce((a, i) => a + i.qty, 0))} />
       </div>
+
+      {/* Botón imprimir */}
+      <button
+        onClick={handleImprimir}
+        disabled={estadoImp === 'imprimiendo' || estadoImp === 'ok'}
+        className={`w-full py-2.5 rounded-xl text-sm font-medium border transition-colors disabled:opacity-50 ${
+          estadoImp === 'ok'
+            ? 'border-success text-success'
+            : estadoImp === 'error'
+            ? 'border-danger text-danger hover:bg-danger/5'
+            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+        }`}
+      >
+        {labelImp[estadoImp]}
+      </button>
 
       <button
         onClick={onNuevaVenta}
