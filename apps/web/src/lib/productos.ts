@@ -64,3 +64,65 @@ const stmtListar = db.prepare(`
 export function listarProductos(): Producto[] {
   return (stmtListar.all() as ProductoRow[]).map(toProducto)
 }
+
+// ─── CRUD ────────────────────────────────────────────────────────
+
+export type ProductoConEstado = Producto & { activo: boolean }
+
+const stmtListarTodos = db.prepare(`
+  SELECT * FROM productos ORDER BY categoria, nombre
+`)
+
+export function listarTodosProductos(): ProductoConEstado[] {
+  return (stmtListarTodos.all() as (ProductoRow & { activo: number })[]).map(row => ({
+    ...toProducto(row),
+    activo: row.activo === 1,
+  }))
+}
+
+const stmtInsertar = db.prepare<{
+  nombre: string; precio: number; sku: string | null; stock: number; categoria: string | null
+}>(`
+  INSERT INTO productos (nombre, precio, sku, stock, categoria)
+  VALUES (@nombre, @precio, @sku, @stock, @categoria)
+  RETURNING *
+`)
+
+export function crearProducto(data: Omit<Producto, 'id'>): Producto {
+  const row = stmtInsertar.get({
+    nombre:    data.nombre,
+    precio:    data.precio,
+    sku:       data.sku ?? null,
+    stock:     data.stock ?? 0,
+    categoria: data.categoria ?? null,
+  }) as ProductoRow
+  return toProducto(row)
+}
+
+const stmtActualizar = db.prepare<{
+  id: number; nombre: string; precio: number
+  sku: string | null; stock: number; categoria: string | null
+}>(`
+  UPDATE productos
+  SET nombre = @nombre, precio = @precio, sku = @sku, stock = @stock, categoria = @categoria
+  WHERE id = @id
+`)
+
+export function actualizarProducto(id: string, data: Omit<Producto, 'id'>): void {
+  stmtActualizar.run({
+    id:        parseInt(id, 10),
+    nombre:    data.nombre,
+    precio:    data.precio,
+    sku:       data.sku ?? null,
+    stock:     data.stock ?? 0,
+    categoria: data.categoria ?? null,
+  })
+}
+
+const stmtToggle = db.prepare(`
+  UPDATE productos SET activo = CASE WHEN activo = 1 THEN 0 ELSE 1 END WHERE id = ?
+`)
+
+export function toggleActivo(id: string): void {
+  stmtToggle.run(parseInt(id, 10))
+}
